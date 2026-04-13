@@ -20,6 +20,10 @@
         "**/*",
         "**/.DS_Store"
       ]
+    },
+    {
+      "from": "tools/dmg-modifier/templates/.DS_Store",
+      "to": "tools/dmg-modifier/templates/.DS_Store"
     }
   ],
   "mac": {
