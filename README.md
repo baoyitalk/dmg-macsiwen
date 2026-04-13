@@ -32,6 +32,30 @@ npm run dev
 npm run build:mac
 ```
 
+## 模板选择（新增）
+
+当前桌面工具支持在 UI 中选择模板：
+
+- `默认模板`：读取 `tools/dmg-modifier/templates/`
+- `自定义模板`：读取 `tools/dmg-modifier/templates/profiles/<模板ID>/`
+
+每个模板目录至少包含：
+
+- `.DS_Store`（必需，决定 Finder 布局）
+- `background.png` / `background.tiff`（建议）
+- `*.webloc`、`qrcode.jpg`（按需）
+
+## 打包说明（.DS_Store）
+
+已修复打包时默认模板 `.DS_Store` 丢失问题。  
+`electron-builder.json` 已显式包含：
+
+- `tools/dmg-modifier/templates/.DS_Store`
+
+如出现“默认模板缺少 .DS_Store”，请重新打包并验证产物内路径：
+
+`DMG品牌化工具.app/Contents/Resources/tools/dmg-modifier/templates/.DS_Store`
+
 ## 原项目中已定位的 DMG 相关结构（梳理结论）
 
 1. Electron 桌面主模块

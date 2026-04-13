@@ -4,6 +4,15 @@
 
 将第三方Mac软件DMG中的品牌信息替换为macsiwen品牌，支持自定义布局和批量处理。
 
+## 模板模式（2026-04）
+
+现已支持“默认模板 + 多模板选择”：
+
+- 默认模板目录：`tools/dmg-modifier/templates/`
+- 自定义模板目录：`tools/dmg-modifier/templates/profiles/<模板ID>/`
+
+模板目录至少需要 `.DS_Store`，否则 UI 会提示“缺少 .DS_Store”并禁用该模板。
+
 ## 🚀 快速开始
 
 ### 方式1：一键自定义布局（推荐）
@@ -77,6 +86,10 @@ dmg-modifier/
 
 # 指定输出文件名
 ./scripts/modify-dmg.sh "/path/to/iShot Pro 2.5.8.dmg" "iShot-Pro-macsiwen.dmg"
+
+# 指定模板目录（用于模板选择能力）
+DMG_TEMPLATE_DIR="./templates/profiles/my-template" \
+./scripts/modify-dmg.sh "/path/to/iShot Pro 2.5.8.dmg" "iShot-Pro-my-template.dmg"
 ```
 
 ### 3. 批量处理
@@ -168,6 +181,19 @@ cd /Users/johnpeng/career_data/code/vcommerce-project/xianyu-toolbox/tools/dmg-m
 ```
 
 ## 故障排除
+
+### 问题0：UI 提示“默认模板缺少 .DS_Store”
+
+```bash
+# 1) 检查源码模板目录
+ls -la tools/dmg-modifier/templates/.DS_Store
+
+# 2) 重新打包
+npm run build:mac
+
+# 3) 检查打包产物中的资源
+# DMG品牌化工具.app/Contents/Resources/tools/dmg-modifier/templates/.DS_Store
+```
 
 ### 问题1：权限错误
 

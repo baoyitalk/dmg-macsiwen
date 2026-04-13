@@ -2,13 +2,13 @@
 
 ## 🚀 快速开始
 
-### Web界面（推荐）
+### 桌面界面（推荐）
 ```
-1. 访问：http://localhost:3002/shop/admin/dmg-editor
+1. 启动：npm run dev
 2. 选择模板
 3. 上传DMG文件
 4. 点击"开始处理"
-5. 下载处理后的文件
+5. 在输出目录查看处理后的文件
 ```
 
 ### 命令行
@@ -76,7 +76,12 @@ tools/dmg-modifier/
 │   ├── background.png         # 背景图（1440×900）
 │   ├── qrcode.jpg            # 二维码
 │   ├── 官网.webloc            # 官网链接
-│   └── macsiwen.txt          # 品牌说明
+│   ├── macsiwen.txt          # 品牌说明
+│   ├── .DS_Store             # 默认模板布局（必需）
+│   └── profiles/             # 自定义模板
+│       └── <模板ID>/
+│           ├── .DS_Store
+│           └── background.png
 ├── output/                    # 处理后的DMG输出目录
 └── temp/                      # 临时文件（自动清理）
 ```
@@ -156,6 +161,13 @@ zlib-level=9
 **原因**：diskutil rename失败
 **解决**：检查挂载点路径是否正确
 
+### Q5: 模板显示“缺少 .DS_Store”
+**原因**：模板目录缺少 `.DS_Store`，或打包资源未包含该文件  
+**解决**：  
+1. 模板目录中补齐 `.DS_Store`  
+2. 重新执行 `npm run build:mac`  
+3. 验证 app 包内路径：`Contents/Resources/tools/dmg-modifier/templates/.DS_Store`
+
 ---
 
 ## 🎯 最佳实践
@@ -190,5 +202,5 @@ zlib-level=9
 
 ---
 
-**版本**：v1.0.0  
-**更新**：2025-12-23
+**版本**：v1.1.x  
+**更新**：2026-04-13
