@@ -5,7 +5,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // ===== 现有单文件处理 API（保持不变） =====
   selectDmgFile: () => ipcRenderer.invoke('select-dmg-file'),
   selectOutputDir: () => ipcRenderer.invoke('select-output-dir'),
-  processDmg: (inputPath, outputDir) => ipcRenderer.invoke('process-dmg', inputPath, outputDir),
+  listTemplates: () => ipcRenderer.invoke('list-templates'),
+  processDmg: (inputPath, outputDir, templateId = 'default') =>
+    ipcRenderer.invoke('process-dmg', inputPath, outputDir, templateId),
   revealInFinder: (filePath) => ipcRenderer.invoke('reveal-in-finder', filePath),
   onProgressUpdate: (callback) => {
     ipcRenderer.on('progress-update', (event, data) => callback(data));
@@ -18,7 +20,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   removeFromQueue: (id) => ipcRenderer.invoke('remove-from-queue', id),
   clearQueue: () => ipcRenderer.invoke('clear-queue'),
   getQueueState: () => ipcRenderer.invoke('get-queue-state'),
-  processBatch: (outputDir) => ipcRenderer.invoke('process-batch', outputDir),
+  processBatch: (outputDir, templateId = 'default') =>
+    ipcRenderer.invoke('process-batch', outputDir, templateId),
   pauseBatch: () => ipcRenderer.invoke('pause-batch'),
   resumeBatch: () => ipcRenderer.invoke('resume-batch'),
   onBatchProgressUpdate: (callback) => {

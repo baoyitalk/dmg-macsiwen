@@ -99,6 +99,15 @@
       cursor: not-allowed;
     }
 
+    .template-select {
+      flex: 1;
+      padding: 12px 15px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 14px;
+      background: white;
+    }
+
     button {
       padding: 12px 24px;
       border: none;
@@ -435,6 +444,20 @@
       <button class="mode-btn" data-mode="settings">⚙️ 设置</button>
     </div>
 
+    <div class="step">
+      <div class="step-title">
+        <span class="step-number">T</span>
+        选择模板
+      </div>
+      <div class="file-input-group">
+        <select id="templateSelect" class="template-select"></select>
+        <button class="btn-select" id="btnRefreshTemplates">刷新模板</button>
+      </div>
+      <p style="margin-top: 8px; font-size: 12px; color: #666;">
+        默认模板使用当前内置模板；自定义模板目录: tools/dmg-modifier/templates/profiles/&lt;模板ID&gt;
+      </p>
+    </div>
+
     <!-- 单文件处理模式 -->
     <div id="single-mode" class="mode-container">
     <div class="step">
@@ -683,6 +706,7 @@
     let inputPath = '';
     let outputDir = '';
     let outputFilePath = '';
+    let selectedTemplateId = 'default';
 
     const btnSelectInput = document.getElementById('btnSelectInput');
     const btnSelectOutput = document.getElementById('btnSelectOutput');
@@ -697,6 +721,55 @@
     const result = document.getElementById('result');
     const resultMessage = document.getElementById('resultMessage');
     const resultActions = document.getElementById('resultActions');
+    const templateSelectEl = document.getElementById('templateSelect');
+    const btnRefreshTemplates = document.getElementById('btnRefreshTemplates');
+
+    async function loadTemplateOptions() {
+      const fallbackTemplates = [{
+        id: 'default',
+        name: '默认模板',
+        isDefault: true,
+        ready: true
+      }];
+
+      const response = await window.electronAPI.listTemplates().catch(() => ({
+        success: false,
+        templates: fallbackTemplates
+      }));
+
+      const templates = response?.success && response.templates?.length
+        ? response.templates
+        : fallbackTemplates;
+
+      templateSelectEl.innerHTML = '';
+
+      templates.forEach(template => {
+        const option = document.createElement('option');
+        option.value = template.id;
+        const defaultLabel = template.isDefault ? '（默认）' : '';
+        const readyLabel = template.ready ? '' : '（缺少.DS_Store）';
+        option.textContent = `${template.name}${defaultLabel}${readyLabel}`;
+        option.disabled = !template.ready;
+        templateSelectEl.appendChild(option);
+      });
+
+      const hasSaved = [...templateSelectEl.options].some(opt => opt.value === selectedTemplateId && !opt.disabled);
+      if (!hasSaved) {
+        selectedTemplateId = 'default';
+      }
+
+      templateSelectEl.value = selectedTemplateId;
+      localStorage.setItem('dmg_selected_template_id', selectedTemplateId);
+    }
+
+    templateSelectEl.addEventListener('change', () => {
+      selectedTemplateId = templateSelectEl.value || 'default';
+      localStorage.setItem('dmg_selected_template_id', selectedTemplateId);
+    });
+
+    btnRefreshTemplates.addEventListener('click', async () => {
+      await loadTemplateOptions();
+    });
 
     // 选择输入文件
     btnSelectInput.addEventListener('click', async () => {
@@ -737,7 +810,7 @@
       result.style.display = 'none';
 
       try {
-        const response = await window.electronAPI.processDmg(inputPath, outputDir);
+        const response = await window.electronAPI.processDmg(inputPath, outputDir, selectedTemplateId);
 
         if (response.success) {
           outputFilePath = response.outputPath;
@@ -787,6 +860,9 @@
 
     // 页面加载时恢复上次输出目录
     window.addEventListener('DOMContentLoaded', () => {
+      selectedTemplateId = localStorage.getItem('dmg_selected_template_id') || 'default';
+      loadTemplateOptions();
+
       const lastOutputDir = localStorage.getItem('dmg_last_output_dir');
       if (lastOutputDir) {
         outputDir = lastOutputDir;
@@ -887,7 +963,7 @@
       document.getElementById('batchProgressContainer').style.display = 'block';
       document.getElementById('btnBatchProcess').disabled = true;
       
-      await window.electronAPI.processBatch(batchOutputDir);
+      await window.electronAPI.processBatch(batchOutputDir, selectedTemplateId);
     });
 
     // 暂停
@@ -1109,7 +1185,8 @@
         const response = await window.electronAPI.processFolderMirror({
           sourceRoot: mirrorSourceRoot,
           outputParentDir: mirrorOutputParent,
-          targetRootName
+          targetRootName,
+          templateId: selectedTemplateId
         });
 
         if (response.success) {

@@ -105,6 +105,78 @@ function getTemplatesDir() {
   }
 }
 
+function getTemplateProfilesDir() {
+  return path.join(getTemplatesDir(), 'profiles');
+}
+
+function isValidTemplateId(templateId) {
+  return /^[a-zA-Z0-9_-]+$/.test(templateId);
+}
+
+function resolveTemplateDir(templateId = 'default') {
+  const normalizedId = (templateId || 'default').toString().trim() || 'default';
+  const defaultTemplateDir = getTemplatesDir();
+
+  if (normalizedId === 'default') {
+    return {
+      id: 'default',
+      dir: defaultTemplateDir,
+      name: '默认模板'
+    };
+  }
+
+  if (!isValidTemplateId(normalizedId)) {
+    throw new Error(`模板ID非法: ${normalizedId}`);
+  }
+
+  const profileDir = path.join(getTemplateProfilesDir(), normalizedId);
+  if (!fsSync.existsSync(profileDir) || !fsSync.statSync(profileDir).isDirectory()) {
+    throw new Error(`模板不存在: ${normalizedId}`);
+  }
+
+  return {
+    id: normalizedId,
+    dir: profileDir,
+    name: normalizedId
+  };
+}
+
+function listTemplates() {
+  const templates = [];
+  const defaultTemplateDir = getTemplatesDir();
+  templates.push({
+    id: 'default',
+    name: '默认模板',
+    path: defaultTemplateDir,
+    isDefault: true,
+    ready: fsSync.existsSync(path.join(defaultTemplateDir, '.DS_Store'))
+  });
+
+  const profilesDir = getTemplateProfilesDir();
+  if (!fsSync.existsSync(profilesDir)) {
+    return templates;
+  }
+
+  const entries = fsSync.readdirSync(profilesDir, { withFileTypes: true });
+  const dirs = entries
+    .filter(entry => entry.isDirectory() && isValidTemplateId(entry.name))
+    .map(entry => entry.name)
+    .sort((a, b) => a.localeCompare(b, 'zh-CN'));
+
+  for (const dirName of dirs) {
+    const templateDir = path.join(profilesDir, dirName);
+    templates.push({
+      id: dirName,
+      name: dirName,
+      path: templateDir,
+      isDefault: false,
+      ready: fsSync.existsSync(path.join(templateDir, '.DS_Store'))
+    });
+  }
+
+  return templates;
+}
+
 // 获取临时DMG路径（统一函数，兼容开发和打包环境）
 function getTempDmgPath() {
   if (app.isPackaged) {
@@ -196,8 +268,23 @@ ipcMain.handle('select-source-folder', async () => {
   return result.filePaths[0];
 });
 
+ipcMain.handle('list-templates', async () => {
+  try {
+    return {
+      success: true,
+      templates: listTemplates()
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: error.message,
+      templates: []
+    };
+  }
+});
+
 // 处理DMG
-ipcMain.handle('process-dmg', async (event, inputPath, outputDir) => {
+ipcMain.handle('process-dmg', async (event, inputPath, outputDir, templateId = 'default') => {
   try {
     // 获取脚本路径（兼容开发模式和打包模式）
     let scriptPath;
@@ -224,6 +311,9 @@ ipcMain.handle('process-dmg', async (event, inputPath, outputDir) => {
       outputFileName = `${inputFileName}-macsiwen.dmg`;
     }
 
+    const selectedTemplate = resolveTemplateDir(templateId);
+    console.log('[单文件处理] 模板:', selectedTemplate.id, selectedTemplate.dir);
+
     // 发送进度更新
     event.sender.send('progress-update', { progress: 10, message: '开始处理...' });
 
@@ -241,7 +331,11 @@ ipcMain.handle('process-dmg', async (event, inputPath, outputDir) => {
       `"${scriptPath}" "${inputPath}" "${outputFileName}"`,
       { 
         cwd: path.dirname(scriptPath),
-        maxBuffer: 10 * 1024 * 1024 // 10MB buffer
+        maxBuffer: 10 * 1024 * 1024, // 10MB buffer
+        env: {
+          ...process.env,
+          DMG_TEMPLATE_DIR: selectedTemplate.dir
+        }
       }
     );
 
@@ -298,6 +392,7 @@ ipcMain.handle('process-folder-mirror', async (event, payload) => {
     const sourceRoot = (payload?.sourceRoot || '').trim();
     const outputParentDir = (payload?.outputParentDir || '').trim();
     const targetRootName = (payload?.targetRootName || '').trim();
+    const selectedTemplate = resolveTemplateDir(payload?.templateId || 'default');
 
     if (!sourceRoot || !outputParentDir || !targetRootName) {
       return { success: false, error: '参数不完整：sourceRoot / outputParentDir / targetRootName' };
@@ -393,7 +488,11 @@ ipcMain.handle('process-folder-mirror', async (event, payload) => {
           {
             cwd: path.dirname(scriptPath),
             maxBuffer: 50 * 1024 * 1024,
-            timeout: 10 * 60 * 1000
+            timeout: 10 * 60 * 1000,
+            env: {
+              ...process.env,
+              DMG_TEMPLATE_DIR: selectedTemplate.dir
+            }
           }
         );
 
@@ -618,7 +717,7 @@ ipcMain.handle('resume-batch', async () => {
 });
 
 // 处理单个DMG文件（内部方法）
-async function processSingleDmgFile(item, outputDir) {
+async function processSingleDmgFile(item, outputDir, templateDir) {
   const inputPath = item.filePath;
   
   try {
@@ -670,7 +769,11 @@ async function processSingleDmgFile(item, outputDir) {
         { 
           cwd: path.dirname(scriptPath),
           maxBuffer: 50 * 1024 * 1024, // 增加到50MB
-          timeout: 300000 // 5分钟超时
+          timeout: 300000, // 5分钟超时
+          env: {
+            ...process.env,
+            DMG_TEMPLATE_DIR: templateDir
+          }
         }
       );
       stdout = result.stdout;
@@ -727,9 +830,11 @@ function sendBatchProgressUpdate() {
 }
 
 // 批量处理DMG
-ipcMain.handle('process-batch', async (event, outputDir) => {
+ipcMain.handle('process-batch', async (event, outputDir, templateId = 'default') => {
   try {
     console.log('[批量处理] 开始处理，输出目录:', outputDir);
+    const selectedTemplate = resolveTemplateDir(templateId);
+    console.log('[批量处理] 模板:', selectedTemplate.id, selectedTemplate.dir);
     
     // 处理队列中的文件
     async function processNext() {
@@ -763,7 +868,7 @@ ipcMain.handle('process-batch', async (event, outputDir) => {
 
       try {
         // 处理文件
-        const outputPath = await processSingleDmgFile(item, outputDir);
+        const outputPath = await processSingleDmgFile(item, outputDir, selectedTemplate.dir);
         
         item.status = 'completed';
         item.outputPath = outputPath;

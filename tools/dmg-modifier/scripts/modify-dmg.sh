@@ -14,7 +14,8 @@ NC='\033[0m' # No Color
 # 配置
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TOOL_DIR="$(dirname "$SCRIPT_DIR")"
-TEMPLATES_DIR="$TOOL_DIR/templates"
+TEMPLATES_DIR_DEFAULT="$TOOL_DIR/templates"
+TEMPLATES_DIR="${DMG_TEMPLATE_DIR:-$TEMPLATES_DIR_DEFAULT}"
 OUTPUT_DIR="$TOOL_DIR/output"
 TEMP_DIR="$TOOL_DIR/temp"
 
@@ -42,6 +43,12 @@ snapshot_app_paths() {
 # 检查依赖
 check_dependencies() {
     print_info "检查依赖..."
+    
+    if [ ! -d "$TEMPLATES_DIR" ]; then
+        print_warn "模板目录不存在，回退到默认模板目录: $TEMPLATES_DIR_DEFAULT"
+        TEMPLATES_DIR="$TEMPLATES_DIR_DEFAULT"
+    fi
+    print_info "使用模板目录: $TEMPLATES_DIR"
     
     if ! command -v hdiutil &> /dev/null; then
         print_error "hdiutil 未找到（macOS自带工具）"
