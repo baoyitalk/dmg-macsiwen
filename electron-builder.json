@@ -1,0 +1,43 @@
+{
+  "appId": "com.macsiwen.dmg-tool",
+  "productName": "DMG品牌化工具",
+  "directories": {
+    "output": "dist"
+  },
+  "files": [
+    "electron/dmg-main.js",
+    "electron/dmg-preload.js",
+    "electron/dmg-ui.html",
+    "electron/log-config.js",
+    "electron/entitlements.mac.plist",
+    "package.json"
+  ],
+  "extraResources": [
+    {
+      "from": "tools/dmg-modifier",
+      "to": "tools/dmg-modifier",
+      "filter": [
+        "**/*",
+        "**/.DS_Store"
+      ]
+    }
+  ],
+  "mac": {
+    "category": "public.app-category.developer-tools",
+    "icon": "electron/assets/icons/icon.icns",
+    "target": [
+      {
+        "target": "dmg",
+        "arch": ["x64", "arm64"]
+      }
+    ]
+  },
+  "dmg": {
+    "icon": "electron/assets/icons/icon.icns",
+    "title": "DMG品牌化工具 ${version}",
+    "window": {
+      "width": 540,
+      "height": 380
+    }
+  }
+}

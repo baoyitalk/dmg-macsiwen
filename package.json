@@ -1,0 +1,26 @@
+{
+  "name": "dmg-macsiwen",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Standalone DMG branding tool extracted from xianyu-toolbox",
+  "main": "electron/dmg-main.js",
+  "author": "John Peng",
+  "license": "MIT",
+  "scripts": {
+    "start": "unset ELECTRON_RUN_AS_NODE; electron electron/dmg-main.js",
+    "dev": "unset ELECTRON_RUN_AS_NODE; NODE_ENV=development electron electron/dmg-main.js",
+    "build": "electron-builder --config electron-builder.json",
+    "build:mac": "electron-builder --config electron-builder.json --mac"
+  },
+  "dependencies": {
+    "electron-log": "^5.4.3"
+  },
+  "devDependencies": {
+    "electron": "^27.0.0",
+    "electron-builder": "^24.13.3"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
+}

@@ -1,0 +1,9 @@
+# 临时文件
+temp/
+*.dmg.tmp
+
+# 输出文件（处理后的DMG不提交）
+output/
+
+# macOS
+.DS_Store

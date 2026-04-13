@@ -1,0 +1,1310 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>闲鱼工具箱 - DMG品牌化工具</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      -webkit-app-region: drag;
+    }
+
+    .container {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      padding: 40px;
+      max-width: 600px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      -webkit-app-region: no-drag;
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 10px;
+      font-size: 28px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #666;
+      margin-bottom: 30px;
+      font-size: 14px;
+    }
+
+    .step {
+      margin-bottom: 25px;
+    }
+
+    .step-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+    }
+
+    .step-number {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      background: #667eea;
+      color: white;
+      border-radius: 50%;
+      font-size: 12px;
+      margin-right: 10px;
+    }
+
+    .file-input-group {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      padding: 12px 15px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: border-color 0.3s;
+    }
+
+    input[type="text"]:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    input[type="text"]:disabled {
+      background: #f5f5f5;
+      cursor: not-allowed;
+    }
+
+    button {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .btn-select {
+      background: #667eea;
+      color: white;
+    }
+
+    .btn-select:hover {
+      background: #5568d3;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-select:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-process {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      font-size: 16px;
+      margin-top: 30px;
+    }
+
+    .btn-process:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-process:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .progress-container {
+      margin-top: 20px;
+      display: none;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: #e0e0e0;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 10px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+      width: 0%;
+      transition: width 0.3s;
+    }
+
+    .progress-text {
+      text-align: center;
+      color: #666;
+      font-size: 14px;
+    }
+
+    .result {
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 8px;
+      display: none;
+    }
+
+    .result.success {
+      background: #d4edda;
+      border: 1px solid #c3e6cb;
+      color: #155724;
+    }
+
+    .result.error {
+      background: #f8d7da;
+      border: 1px solid #f5c6cb;
+      color: #721c24;
+    }
+
+    .result-actions {
+      margin-top: 15px;
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn-reveal {
+      background: #28a745;
+      color: white;
+    }
+
+    .btn-reveal:hover {
+      background: #218838;
+    }
+
+    .btn-reset {
+      background: #6c757d;
+      color: white;
+    }
+
+    .btn-reset:hover {
+      background: #5a6268;
+    }
+
+    .features {
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 1px solid #e0e0e0;
+    }
+
+    .feature-list {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+      margin-top: 15px;
+    }
+
+    .feature-item {
+      display: flex;
+      align-items: center;
+      font-size: 13px;
+      color: #666;
+    }
+
+    .feature-icon {
+      margin-right: 8px;
+      font-size: 16px;
+    }
+
+    /* v1.1.63 批量处理样式 */
+    .mode-switch {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 30px;
+      border-bottom: 2px solid #e0e0e0;
+      padding-bottom: 15px;
+    }
+
+    .mode-btn {
+      flex: 1;
+      padding: 10px 20px;
+      background: #f5f5f5;
+      border: 2px solid #e0e0e0;
+      color: #666;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+
+    .mode-btn.active {
+      background: #667eea;
+      border-color: #667eea;
+      color: white;
+    }
+
+    .mode-btn:hover {
+      border-color: #667eea;
+      transform: translateY(-2px);
+    }
+
+    .batch-header {
+      margin-bottom: 20px;
+    }
+
+    .batch-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .batch-actions button {
+      flex: 1;
+      min-width: 120px;
+    }
+
+    .queue-container {
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .queue-header {
+      padding: 12px 15px;
+      background: #f5f5f5;
+      border-bottom: 1px solid #e0e0e0;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .queue-list {
+      min-height: 150px;
+    }
+
+    .empty-state {
+      padding: 40px 20px;
+      text-align: center;
+      color: #999;
+    }
+
+    .empty-state p {
+      margin-top: 10px;
+    }
+
+    .queue-item {
+      padding: 12px 15px;
+      border-bottom: 1px solid #f0f0f0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: background 0.2s;
+    }
+
+    .queue-item:hover {
+      background: #f9f9f9;
+    }
+
+    .queue-item:last-child {
+      border-bottom: none;
+    }
+
+    .queue-item-status {
+      font-size: 20px;
+    }
+
+    .queue-item-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .queue-item-name {
+      font-weight: 600;
+      color: #333;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .queue-item-meta {
+      font-size: 12px;
+      color: #999;
+      margin-top: 4px;
+    }
+
+    .queue-item-progress {
+      width: 80px;
+      text-align: center;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .queue-item-progress.pending {
+      color: #999;
+    }
+
+    .queue-item-progress.processing {
+      color: #667eea;
+    }
+
+    .queue-item-progress.completed {
+      color: #28a745;
+    }
+
+    .queue-item-progress.failed {
+      color: #dc3545;
+    }
+
+    .queue-item-actions {
+      display: flex;
+      gap: 5px;
+    }
+
+    .btn-remove {
+      padding: 6px 12px;
+      background: #dc3545;
+      color: white;
+      font-size: 12px;
+    }
+
+    .btn-remove:hover {
+      background: #c82333;
+    }
+
+    .batch-progress-container {
+      margin-top: 20px;
+      padding: 20px;
+      background: #f9f9f9;
+      border-radius: 8px;
+    }
+
+    .batch-stats {
+      text-align: center;
+      margin-top: 10px;
+      font-size: 14px;
+      color: #666;
+    }
+
+    .batch-control-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .batch-control-buttons button {
+      flex: 1;
+    }
+  </style>
+
+</head>
+<body>
+  <div class="container">
+    <h1>🎨 DMG品牌化工具</h1>
+    <p class="subtitle">一键替换DMG引导页为macsiwen品牌</p>
+
+    <!-- v1.1.63 新增：模式切换 -->
+    <div class="mode-switch">
+      <button class="mode-btn active" data-mode="single">📄 单文件处理</button>
+      <button class="mode-btn" data-mode="batch">📚 批量处理</button>
+      <button class="mode-btn" data-mode="mirror">🗂️ 目录镜像</button>
+      <button class="mode-btn" data-mode="settings">⚙️ 设置</button>
+    </div>
+
+    <!-- 单文件处理模式 -->
+    <div id="single-mode" class="mode-container">
+    <div class="step">
+
+      <div class="step-title">
+        <span class="step-number">1</span>
+        选择原始DMG文件
+      </div>
+      <div class="file-input-group">
+        <input type="text" id="inputPath" placeholder="点击选择DMG文件..." readonly>
+        <button class="btn-select" id="btnSelectInput">选择文件</button>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-title">
+        <span class="step-number">2</span>
+        选择输出目录
+      </div>
+      <div class="file-input-group">
+        <input type="text" id="outputDir" placeholder="点击选择输出目录..." readonly>
+        <button class="btn-select" id="btnSelectOutput">选择目录</button>
+      </div>
+    </div>
+
+    <button class="btn-process" id="btnProcess" disabled>开始处理</button>
+
+    <div class="progress-container" id="progressContainer">
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      <div class="progress-text" id="progressText">准备中...</div>
+    </div>
+
+    <div class="result" id="result">
+      <div id="resultMessage"></div>
+      <div class="result-actions" id="resultActions" style="display: none;">
+        <button class="btn-reveal" id="btnReveal">在Finder中显示</button>
+        <button class="btn-reset" id="btnReset">重新处理</button>
+      </div>
+    </div>
+
+    <div class="features">
+      <div class="feature-list">
+        <div class="feature-item">
+          <span class="feature-icon">✅</span>
+          2×2网格布局
+        </div>
+        <div class="feature-item">
+          <span class="feature-icon">🎨</span>
+          浅蓝渐变背景
+        </div>
+        <div class="feature-item">
+          <span class="feature-icon">🔗</span>
+          添加官网链接
+        </div>
+        <div class="feature-item">
+          <span class="feature-icon">🗑️</span>
+          删除上家文件
+        </div>
+      </div>
+    </div>
+    </div><!-- 关闭 single-mode -->
+
+    <!-- v1.1.63 批量处理模式 -->
+    <div id="batch-mode" class="mode-container" style="display: none;">
+      <div class="batch-header">
+        <div class="batch-actions">
+          <button class="btn-select" id="btnBatchSelectFiles">📂 选择文件</button>
+          <button class="btn-select" id="btnBatchSelectFolder">📁 选择文件夹</button>
+          <button class="btn-select" id="btnClearQueue">🗑️ 清空列表</button>
+        </div>
+      </div>
+
+      <!-- 文件列表 -->
+      <div class="queue-container">
+        <div class="queue-header">
+          <span class="queue-title">待处理文件列表 (<span id="queueCount">0</span>个文件)</span>
+        </div>
+        <div class="queue-list" id="queueList">
+          <div class="empty-state">
+            <span style="font-size: 48px;">📁</span>
+            <p>还没有添加文件</p>
+            <p style="font-size: 12px; color: #999;">点击上方按钮选择文件或文件夹</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 输出目录 -->
+      <div class="step" style="margin-top: 20px;">
+        <div class="step-title">
+          <span class="step-number">📁</span>
+          选择输出目录
+        </div>
+        <div class="file-input-group">
+          <input type="text" id="batchOutputDir" placeholder="点击选择输出目录..." readonly>
+          <button class="btn-select" id="btnBatchSelectOutput">选择目录</button>
+        </div>
+      </div>
+
+      <!-- 批量处理按钮 -->
+      <button class="btn-process" id="btnBatchProcess" disabled>开始批量处理</button>
+
+      <!-- 总体进度 -->
+      <div class="batch-progress-container" id="batchProgressContainer" style="display: none;">
+        <div class="progress-bar">
+          <div class="progress-fill" id="batchProgressFill"></div>
+        </div>
+        <div class="progress-text" id="batchProgressText">准备中...</div>
+        <div class="batch-stats">
+          已完成: <span id="batchCompletedCount">0</span> / 
+          <span id="batchTotalCount">0</span> 
+          (失败: <span id="batchFailedCount">0</span>)
+        </div>
+        <div class="batch-control-buttons">
+          <button class="btn-select" id="btnPauseBatch">⏸️ 暂停</button>
+          <button class="btn-select" id="btnResumeBatch" style="display: none;">▶️ 继续</button>
+        </div>
+      </div>
+    </div><!-- 关闭 batch-mode -->
+
+    <!-- v1.1.66 目录镜像处理模式 -->
+    <div id="mirror-mode" class="mode-container" style="display: none;">
+      <div class="step">
+        <div class="step-title">
+          <span class="step-number">1</span>
+          选择上家根目录
+        </div>
+        <div class="file-input-group">
+          <input type="text" id="mirrorSourceRoot" placeholder="点击选择上家根目录..." readonly>
+          <button class="btn-select" id="btnMirrorSelectSource">选择目录</button>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-title">
+          <span class="step-number">2</span>
+          选择输出父目录
+        </div>
+        <div class="file-input-group">
+          <input type="text" id="mirrorOutputParent" placeholder="点击选择输出父目录..." readonly>
+          <button class="btn-select" id="btnMirrorSelectOutput">选择目录</button>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-title">
+          <span class="step-number">3</span>
+          目标根目录名（只改这一个名字）
+        </div>
+        <div class="file-input-group">
+          <input type="text" id="mirrorRootName" placeholder="例如：test0412-macsiwen">
+        </div>
+        <p style="margin-top: 8px; color: #666; font-size: 12px;">
+          子文件夹与内容路径保持不变，只修改根目录名。
+        </p>
+      </div>
+
+      <button class="btn-process" id="btnMirrorProcess" disabled>开始目录镜像处理</button>
+
+      <div class="progress-container" id="mirrorProgressContainer" style="display: none;">
+        <div class="progress-bar">
+          <div class="progress-fill" id="mirrorProgressFill"></div>
+        </div>
+        <div class="progress-text" id="mirrorProgressText">准备中...</div>
+      </div>
+
+      <div class="result" id="mirrorResult">
+        <div id="mirrorResultMessage"></div>
+        <div class="result-actions" id="mirrorResultActions" style="display: none;">
+          <button class="btn-reveal" id="btnMirrorReveal">在Finder中显示</button>
+        </div>
+      </div>
+    </div><!-- 关闭 mirror-mode -->
+
+    <!-- v1.1.65 设置模式 - 简化版 -->
+    <div id="settings-mode" class="mode-container" style="display: none;">
+      <div class="step">
+        <div class="step-title">
+          <span class="step-number">🎨</span>
+          背景图说明
+        </div>
+        <div style="margin-top: 15px;">
+          <div style="padding: 30px; background: #f9f9f9; border-radius: 8px; text-align: center;">
+            <span style="font-size: 64px;">🖼️</span>
+            <h3 style="margin-top: 20px; color: #333;">macsiwen.cc 官方背景图</h3>
+            <p style="margin-top: 10px; color: #666; font-size: 14px;">
+              DMG工具已内置精美的品牌背景图<br>
+              无需手动配置，开箱即用
+            </p>
+            <div style="margin-top: 20px; padding: 15px; background: white; border-radius: 8px; text-align: left;">
+              <p style="margin: 0; font-size: 13px; color: #666;">
+                <strong>📐 背景图规格：</strong><br>
+                • 分辨率: 600x400px (Retina 2x)<br>
+                • 格式: PNG + TIFF双格式<br>
+                • 风格: 浅蓝渐变 + macsiwen Logo
+              </p>
+            </div>
+            <div style="margin-top: 15px; padding: 15px; background: #e3f2fd; border-radius: 8px; border-left: 4px solid #2196f3;">
+              <p style="margin: 0; font-size: 13px; color: #1565c0;">
+                <strong>💡 提示：</strong>如需自定义背景图，请使用下方"制作模板"功能
+              </p>
+            </div>
+          </div>
+          
+          <!-- v1.1.65 核心功能：制作.DS_Store模板 -->
+          <div style="margin-top: 15px; padding: 15px; background: #fff3cd; border-radius: 8px;">
+            <p style="margin: 0; font-weight: 600; color: #856404;">⚠️ 更换背景图需要制作.DS_Store模板</p>
+            <p style="margin: 10px 0 15px; font-size: 13px; color: #856404;">
+              如果您上传了新的背景图到templates目录，必须重新制作.DS_Store模板才能生效
+            </p>
+            <button class="btn-process" id="btnMakeDsStore">
+              🛠️ 制作.DS_Store模板
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-title">
+          <span class="step-number">🔗</span>
+          网站链接设置
+        </div>
+        <div style="margin-top: 15px;">
+          <div style="margin-bottom: 15px;">
+            <label style="display: block; margin-bottom: 5px; font-size: 14px; color: #666;">网站名称</label>
+            <input type="text" id="websiteName" value="访问macsiwen.cc" placeholder="例如: 访问macsiwen.cc" style="width: 100%;">
+          </div>
+          <div style="margin-bottom: 15px;">
+            <label style="display: block; margin-bottom: 5px; font-size: 14px; color: #666;">网站URL</label>
+            <input type="text" id="websiteUrl" value="https://macsiwen.cc" placeholder="例如: https://macsiwen.cc" style="width: 100%;">
+          </div>
+          <button class="btn-process" id="btnSaveWebsite">💾 保存网站设置</button>
+        </div>
+      </div>
+
+      <div class="result" id="settingsResult" style="margin-top: 20px;">
+        <div id="settingsResultMessage"></div>
+      </div>
+    </div><!-- 关闭 settings-mode -->
+
+  </div><!-- 关闭 container -->
+
+  <script>
+
+    let inputPath = '';
+    let outputDir = '';
+    let outputFilePath = '';
+
+    const btnSelectInput = document.getElementById('btnSelectInput');
+    const btnSelectOutput = document.getElementById('btnSelectOutput');
+    const btnProcess = document.getElementById('btnProcess');
+    const btnReveal = document.getElementById('btnReveal');
+    const btnReset = document.getElementById('btnReset');
+    const inputPathEl = document.getElementById('inputPath');
+    const outputDirEl = document.getElementById('outputDir');
+    const progressContainer = document.getElementById('progressContainer');
+    const progressFill = document.getElementById('progressFill');
+    const progressText = document.getElementById('progressText');
+    const result = document.getElementById('result');
+    const resultMessage = document.getElementById('resultMessage');
+    const resultActions = document.getElementById('resultActions');
+
+    // 选择输入文件
+    btnSelectInput.addEventListener('click', async () => {
+      const path = await window.electronAPI.selectDmgFile();
+      if (path) {
+        inputPath = path;
+        inputPathEl.value = path;
+        checkCanProcess();
+      }
+    });
+
+    // 选择输出目录
+    btnSelectOutput.addEventListener('click', async () => {
+      const path = await window.electronAPI.selectOutputDir();
+      if (path) {
+        outputDir = path;
+        outputDirEl.value = path;
+        // 保存到localStorage
+        localStorage.setItem('dmg_last_output_dir', path);
+        checkCanProcess();
+      }
+    });
+
+    // 检查是否可以开始处理
+    function checkCanProcess() {
+      btnProcess.disabled = !(inputPath && outputDir);
+    }
+
+    // 处理DMG
+    btnProcess.addEventListener('click', async () => {
+      // 禁用按钮
+      btnSelectInput.disabled = true;
+      btnSelectOutput.disabled = true;
+      btnProcess.disabled = true;
+
+      // 显示进度
+      progressContainer.style.display = 'block';
+      result.style.display = 'none';
+
+      try {
+        const response = await window.electronAPI.processDmg(inputPath, outputDir);
+
+        if (response.success) {
+          outputFilePath = response.outputPath;
+          showResult('success', response.message);
+          resultActions.style.display = 'flex';
+        } else {
+          showResult('error', `处理失败: ${response.error}`);
+        }
+      } catch (error) {
+        showResult('error', `处理失败: ${error.message}`);
+      } finally {
+        // 恢复按钮
+        btnSelectInput.disabled = false;
+        btnSelectOutput.disabled = false;
+        checkCanProcess();
+      }
+    });
+
+    // 显示结果
+    function showResult(type, message) {
+      result.className = `result ${type}`;
+      result.style.display = 'block';
+      resultMessage.textContent = message;
+      progressContainer.style.display = 'none';
+    }
+
+    // 在Finder中显示
+    btnReveal.addEventListener('click', () => {
+      if (outputFilePath) {
+        window.electronAPI.revealInFinder(outputFilePath);
+      }
+    });
+
+    // 重新处理
+    btnReset.addEventListener('click', () => {
+      result.style.display = 'none';
+      resultActions.style.display = 'none';
+      progressFill.style.width = '0%';
+      progressText.textContent = '准备中...';
+    });
+
+    // 监听进度更新
+    window.electronAPI.onProgressUpdate((data) => {
+      progressFill.style.width = data.progress + '%';
+      progressText.textContent = data.message;
+    });
+
+    // 页面加载时恢复上次输出目录
+    window.addEventListener('DOMContentLoaded', () => {
+      const lastOutputDir = localStorage.getItem('dmg_last_output_dir');
+      if (lastOutputDir) {
+        outputDir = lastOutputDir;
+        outputDirEl.value = lastOutputDir;
+        mirrorOutputParent = lastOutputDir;
+        const mirrorOutputInput = document.getElementById('mirrorOutputParent');
+        if (mirrorOutputInput) {
+          mirrorOutputInput.value = lastOutputDir;
+        }
+        checkCanProcess();
+      }
+    });
+
+    // ===== v1.1.63 批量处理功能 =====
+    
+    // 模式切换
+    const modeBtns = document.querySelectorAll('.mode-btn');
+    const singleMode = document.getElementById('single-mode');
+    const batchMode = document.getElementById('batch-mode');
+    const mirrorMode = document.getElementById('mirror-mode');
+    const settingsMode = document.getElementById('settings-mode');
+
+    modeBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const mode = btn.dataset.mode;
+        
+        // 更新按钮状态
+        modeBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        
+        // 切换显示
+        singleMode.style.display = 'none';
+        batchMode.style.display = 'none';
+        mirrorMode.style.display = 'none';
+        settingsMode.style.display = 'none';
+        
+        if (mode === 'single') {
+          singleMode.style.display = 'block';
+        } else if (mode === 'batch') {
+          batchMode.style.display = 'block';
+        } else if (mode === 'mirror') {
+          mirrorMode.style.display = 'block';
+        } else if (mode === 'settings') {
+          settingsMode.style.display = 'block';
+          loadSettings(); // 加载设置
+        }
+      });
+    });
+
+    // 批量处理变量
+    let batchOutputDir = '';
+    const queueList = document.getElementById('queueList');
+    const queueCount = document.getElementById('queueCount');
+    
+    // 批量模式也恢复上次输出目录
+    const lastOutputDir = localStorage.getItem('dmg_last_output_dir');
+    if (lastOutputDir) {
+      batchOutputDir = lastOutputDir;
+      document.getElementById('batchOutputDir').value = lastOutputDir;
+    }
+
+    // 选择多个文件
+    document.getElementById('btnBatchSelectFiles').addEventListener('click', async () => {
+      const files = await window.electronAPI.selectDmgFiles();
+      if (files && files.length > 0) {
+        await addFilesToQueue(files);
+      }
+    });
+
+    // 选择文件夹
+    document.getElementById('btnBatchSelectFolder').addEventListener('click', async () => {
+      const files = await window.electronAPI.selectDmgFolder();
+      if (files && files.length > 0) {
+        await addFilesToQueue(files);
+      }
+    });
+
+    // 清空队列
+    document.getElementById('btnClearQueue').addEventListener('click', async () => {
+      await window.electronAPI.clearQueue();
+      await updateQueueUI();
+    });
+
+    // 选择输出目录
+    document.getElementById('btnBatchSelectOutput').addEventListener('click', async () => {
+      const path = await window.electronAPI.selectOutputDir();
+      if (path) {
+        batchOutputDir = path;
+        document.getElementById('batchOutputDir').value = path;
+        // 保存到localStorage
+        localStorage.setItem('dmg_last_output_dir', path);
+        checkCanBatchProcess();
+      }
+    });
+
+    // 开始批量处理
+    document.getElementById('btnBatchProcess').addEventListener('click', async () => {
+      document.getElementById('batchProgressContainer').style.display = 'block';
+      document.getElementById('btnBatchProcess').disabled = true;
+      
+      await window.electronAPI.processBatch(batchOutputDir);
+    });
+
+    // 暂停
+    document.getElementById('btnPauseBatch').addEventListener('click', async () => {
+      await window.electronAPI.pauseBatch();
+      document.getElementById('btnPauseBatch').style.display = 'none';
+      document.getElementById('btnResumeBatch').style.display = 'block';
+    });
+
+    // 继续
+    document.getElementById('btnResumeBatch').addEventListener('click', async () => {
+      await window.electronAPI.resumeBatch();
+      document.getElementById('btnPauseBatch').style.display = 'block';
+      document.getElementById('btnResumeBatch').style.display = 'none';
+    });
+
+    // 添加文件到队列
+    async function addFilesToQueue(filePaths) {
+      const result = await window.electronAPI.addToQueue(filePaths);
+      if (result.success) {
+        await updateQueueUI();
+      }
+    }
+
+    // 更新队列UI
+    async function updateQueueUI() {
+      const state = await window.electronAPI.getQueueState();
+      
+      queueCount.textContent = state.totalCount;
+      
+      if (state.items.length === 0) {
+        queueList.innerHTML = `
+          <div class="empty-state">
+            <span style="font-size: 48px;">📁</span>
+            <p>还没有添加文件</p>
+            <p style="font-size: 12px; color: #999;">点击上方按钮选择文件或文件夹</p>
+          </div>
+        `;
+      } else {
+        queueList.innerHTML = state.items.map(item => {
+          const statusIcon = getStatusIcon(item.status);
+          const progressClass = item.status;
+          const progressText = item.status === 'pending' ? '等待中' :
+                              item.status === 'processing' ? `${item.progress}%` :
+                              item.status === 'completed' ? '已完成' :
+                              item.status === 'failed' ? '失败' : item.status;
+          
+          const fileSizeText = (item.fileSize / 1024 / 1024).toFixed(2) + ' MB';
+          
+          return `
+            <div class="queue-item" data-id="${item.id}">
+              <span class="queue-item-status">${statusIcon}</span>
+              <div class="queue-item-info">
+                <div class="queue-item-name" title="${item.fileName}">${item.fileName}</div>
+                <div class="queue-item-meta">${fileSizeText}${item.error ? ' - ' + item.error : ''}</div>
+              </div>
+              <div class="queue-item-progress ${progressClass}">${progressText}</div>
+              <div class="queue-item-actions">
+                ${item.status === 'pending' ? `<button class="btn-remove" onclick="removeQueueItem('${item.id}')">删除</button>` : ''}
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+      
+      checkCanBatchProcess();
+    }
+
+    // 移除队列项
+    window.removeQueueItem = async function(id) {
+      await window.electronAPI.removeFromQueue(id);
+      await updateQueueUI();
+    };
+
+    // 获取状态图标
+    function getStatusIcon(status) {
+      const icons = {
+        pending: '⏸️',
+        processing: '⏳',
+        completed: '✅',
+        failed: '❌',
+        paused: '⏯️'
+      };
+      return icons[status] || '📄';
+    }
+
+    // 检查是否可以开始批量处理
+    async function checkCanBatchProcess() {
+      const state = await window.electronAPI.getQueueState();
+      const hasFiles = state.totalCount > 0;
+      const hasOutputDir = batchOutputDir !== '';
+      document.getElementById('btnBatchProcess').disabled = !(hasFiles && hasOutputDir);
+    }
+
+    // 监听批量进度更新
+    window.electronAPI.onBatchProgressUpdate((state) => {
+      // 更新队列UI
+      updateQueueDisplay(state);
+      
+      // 更新总体进度
+      document.getElementById('batchProgressFill').style.width = state.overallProgress + '%';
+      document.getElementById('batchProgressText').textContent = 
+        `处理中... ${state.completedCount}/${state.totalCount}`;
+      document.getElementById('batchCompletedCount').textContent = state.completedCount;
+      document.getElementById('batchTotalCount').textContent = state.totalCount;
+      document.getElementById('batchFailedCount').textContent = state.failedCount;
+      
+      // 如果全部完成
+      if (state.completedCount + state.failedCount === state.totalCount && state.totalCount > 0) {
+        document.getElementById('batchProgressText').textContent = 
+          `处理完成！成功: ${state.completedCount}, 失败: ${state.failedCount}`;
+        document.getElementById('btnBatchProcess').disabled = false;
+      }
+    });
+
+    // 更新队列显示（只更新变化的项）
+    function updateQueueDisplay(state) {
+      state.items.forEach(item => {
+        const itemEl = document.querySelector(`.queue-item[data-id="${item.id}"]`);
+        if (itemEl) {
+          const statusEl = itemEl.querySelector('.queue-item-status');
+          const progressEl = itemEl.querySelector('.queue-item-progress');
+          const metaEl = itemEl.querySelector('.queue-item-meta');
+          
+          statusEl.textContent = getStatusIcon(item.status);
+          progressEl.className = 'queue-item-progress ' + item.status;
+          progressEl.textContent = item.status === 'processing' ? `${item.progress}%` :
+                                  item.status === 'completed' ? '已完成' :
+                                  item.status === 'failed' ? '失败' : '等待中';
+          
+          if (item.error) {
+            const fileSizeText = (item.fileSize / 1024 / 1024).toFixed(2) + ' MB';
+            metaEl.textContent = `${fileSizeText} - ${item.error}`;
+          }
+        }
+      });
+    }
+
+    // ===== v1.1.66 目录镜像处理功能 =====
+    let mirrorSourceRoot = '';
+    let mirrorOutputParent = '';
+    let mirrorTargetRootPath = '';
+
+    const mirrorSourceRootEl = document.getElementById('mirrorSourceRoot');
+    const mirrorOutputParentEl = document.getElementById('mirrorOutputParent');
+    const mirrorRootNameEl = document.getElementById('mirrorRootName');
+    const btnMirrorSelectSource = document.getElementById('btnMirrorSelectSource');
+    const btnMirrorSelectOutput = document.getElementById('btnMirrorSelectOutput');
+    const btnMirrorProcess = document.getElementById('btnMirrorProcess');
+    const mirrorProgressContainer = document.getElementById('mirrorProgressContainer');
+    const mirrorProgressFill = document.getElementById('mirrorProgressFill');
+    const mirrorProgressText = document.getElementById('mirrorProgressText');
+    const mirrorResult = document.getElementById('mirrorResult');
+    const mirrorResultMessage = document.getElementById('mirrorResultMessage');
+    const mirrorResultActions = document.getElementById('mirrorResultActions');
+    const btnMirrorReveal = document.getElementById('btnMirrorReveal');
+
+    function getBaseName(p) {
+      if (!p) return '';
+      const normalized = p.replace(/\\/g, '/').replace(/\/+$/, '');
+      const parts = normalized.split('/');
+      return parts[parts.length - 1] || '';
+    }
+
+    function checkCanMirrorProcess() {
+      const rootName = mirrorRootNameEl.value.trim();
+      btnMirrorProcess.disabled = !(mirrorSourceRoot && mirrorOutputParent && rootName);
+    }
+
+    function showMirrorResult(type, message) {
+      mirrorResult.className = `result ${type}`;
+      mirrorResult.style.display = 'block';
+      mirrorResultMessage.textContent = message;
+    }
+
+    btnMirrorSelectSource.addEventListener('click', async () => {
+      const selected = await window.electronAPI.selectSourceFolder();
+      if (!selected) return;
+
+      mirrorSourceRoot = selected;
+      mirrorSourceRootEl.value = selected;
+
+      const autoName = `${getBaseName(selected)}-macsiwen`;
+      if (!mirrorRootNameEl.value.trim()) {
+        mirrorRootNameEl.value = autoName;
+      }
+
+      checkCanMirrorProcess();
+    });
+
+    btnMirrorSelectOutput.addEventListener('click', async () => {
+      const selected = await window.electronAPI.selectOutputDir();
+      if (!selected) return;
+
+      mirrorOutputParent = selected;
+      mirrorOutputParentEl.value = selected;
+      localStorage.setItem('dmg_last_output_dir', selected);
+      checkCanMirrorProcess();
+    });
+
+    mirrorRootNameEl.addEventListener('input', () => {
+      checkCanMirrorProcess();
+    });
+
+    btnMirrorProcess.addEventListener('click', async () => {
+      const targetRootName = mirrorRootNameEl.value.trim();
+      if (!targetRootName) return;
+
+      btnMirrorSelectSource.disabled = true;
+      btnMirrorSelectOutput.disabled = true;
+      btnMirrorProcess.disabled = true;
+      mirrorResult.style.display = 'none';
+      mirrorResultActions.style.display = 'none';
+      mirrorProgressContainer.style.display = 'block';
+      mirrorProgressFill.style.width = '0%';
+      mirrorProgressText.textContent = '准备中...';
+
+      try {
+        const response = await window.electronAPI.processFolderMirror({
+          sourceRoot: mirrorSourceRoot,
+          outputParentDir: mirrorOutputParent,
+          targetRootName
+        });
+
+        if (response.success) {
+          mirrorTargetRootPath = response.targetRoot;
+          showMirrorResult('success', response.message || '目录镜像处理完成');
+          mirrorResultActions.style.display = 'flex';
+        } else {
+          const msg = response.error || '处理失败';
+          if (response.partial && response.failures?.length) {
+            const firstFailure = response.failures[0];
+            showMirrorResult('error', `部分失败：${msg}（示例：${firstFailure.file} - ${firstFailure.error}）`);
+          } else {
+            showMirrorResult('error', msg);
+          }
+        }
+      } catch (error) {
+        showMirrorResult('error', `处理失败: ${error.message}`);
+      } finally {
+        btnMirrorSelectSource.disabled = false;
+        btnMirrorSelectOutput.disabled = false;
+        checkCanMirrorProcess();
+      }
+    });
+
+    btnMirrorReveal.addEventListener('click', () => {
+      if (mirrorTargetRootPath) {
+        window.electronAPI.revealInFinder(mirrorTargetRootPath);
+      }
+    });
+
+    window.electronAPI.onMirrorProgressUpdate((data) => {
+      mirrorProgressContainer.style.display = 'block';
+      mirrorProgressFill.style.width = `${data.percent || 0}%`;
+      const prefix = data.stage ? `[${data.stage}] ` : '';
+      mirrorProgressText.textContent =
+        `${prefix}${data.current || '处理中...'} (${data.processed || 0}/${data.total || 0})`;
+    });
+
+    // ===== v1.1.64 设置功能 =====
+    
+    // 加载设置
+    async function loadSettings() {
+      // 暂时使用localStorage存储设置
+      const websiteName = localStorage.getItem('dmg_website_name') || '访问macsiwen.cc';
+      const websiteUrl = localStorage.getItem('dmg_website_url') || 'https://macsiwen.cc';
+      
+      document.getElementById('websiteName').value = websiteName;
+      document.getElementById('websiteUrl').value = websiteUrl;
+      
+      // TODO: 加载背景图预览
+    }
+
+    // 显示设置结果
+    function showSettingsResult(type, message) {
+      const settingsResult = document.getElementById('settingsResult');
+      const settingsResultMessage = document.getElementById('settingsResultMessage');
+      
+      settingsResult.className = `result ${type}`;
+      settingsResult.style.display = 'block';
+      settingsResultMessage.textContent = message;
+      
+      // 3秒后自动隐藏
+      setTimeout(() => {
+        settingsResult.style.display = 'none';
+      }, 3000);
+    }
+
+    // 保存网站设置
+    document.getElementById('btnSaveWebsite').addEventListener('click', async () => {
+      const websiteName = document.getElementById('websiteName').value.trim();
+      const websiteUrl = document.getElementById('websiteUrl').value.trim();
+      
+      if (!websiteName || !websiteUrl) {
+        showSettingsResult('error', '❌ 请填写完整的网站信息');
+        return;
+      }
+      
+      try {
+        // 保存到localStorage
+        localStorage.setItem('dmg_website_name', websiteName);
+        localStorage.setItem('dmg_website_url', websiteUrl);
+        
+        // 生成webloc文件
+        const result = await window.electronAPI.saveWebsiteSettings({
+          name: websiteName,
+          url: websiteUrl
+        });
+        
+        if (result.success) {
+          showSettingsResult('success', '✅ 网站设置保存成功！');
+        } else {
+          showSettingsResult('error', '❌ 保存失败: ' + result.error);
+        }
+      } catch (error) {
+        showSettingsResult('error', '❌ 保存失败: ' + error.message);
+      }
+    });
+
+    // ===== v1.1.65 新增：制作.DS_Store模板 =====
+    let currentMountPoint = null;
+
+    // 直接绑定事件（DOM已加载）
+    const btnMakeDsStore = document.getElementById('btnMakeDsStore');
+    if (!btnMakeDsStore) {
+      console.error('[BUG] btnMakeDsStore button not found!');
+    } else {
+      console.log('[初始化] btnMakeDsStore按钮找到了，绑定点击事件');
+      
+      btnMakeDsStore.addEventListener('click', async () => {
+      try {
+        console.log('[制作DS_Store] 点击按钮');
+        
+        // 禁用按钮
+        const btn = document.getElementById('btnMakeDsStore');
+        btn.disabled = true;
+        btn.textContent = '🔄 正在创建临时DMG...';
+        
+        console.log('[制作DS_Store] 调用 start()');
+        
+        // 第1步：创建临时DMG并打开Finder
+        const result = await window.electronAPI.dsStore.start();
+        
+        console.log('[制作DS_Store] start() 返回:', result);
+        
+        if (!result.success) {
+          showSettingsResult('error', '❌ ' + result.error);
+          btn.disabled = false;
+          btn.textContent = '🛠️ 制作.DS_Store模板';
+          return;
+        }
+        
+        currentMountPoint = result.mountPoint;
+        
+        // 第2步：显示对话框引导用户操作
+        const userConfirmed = confirm(`✅ 临时DMG已打开！
+
+📋 请在Finder中操作（很重要！）：
+
+1️⃣ 打开 Finder，找到左侧的 "macsiwen.com" 卷
+2️⃣ 按 Cmd+J 打开"显示选项"
+3️⃣ 在"背景"部分选择"图片"
+4️⃣ 点击选择图片，导航到：
+   ${currentMountPoint}/.DropDMGBackground/
+   选择 macsiwen-background.png
+5️⃣ 关闭Finder窗口
+
+⚠️ 重要：必须选择DMG内部的图片！
+不要选择桌面或其他位置的图片！
+
+完成后点击"确定"，未完成点击"取消"`);
+        
+        console.log('[制作DS_Store] 用户点击:', userConfirmed ? 'OK' : 'Cancel');
+        
+        if (userConfirmed) {
+          // 用户确认完成
+          btn.textContent = '⏳ 正在提取.DS_Store...';
+          
+          console.log('[制作DS_Store] 调用 finish(), mountPoint:', currentMountPoint);
+          
+          const finalResult = await window.electronAPI.dsStore.finish(currentMountPoint);
+          
+          console.log('[制作DS_Store] finish() 返回:', finalResult);
+          
+          if (finalResult.success) {
+            console.log('[制作DS_Store] 成功！显示成功消息');
+            showSettingsResult('success', '✅ .DS_Store模板制作成功！\n\n现在处理的DMG都会使用新背景图。');
+          } else {
+            console.log('[制作DS_Store] 失败:', finalResult.error);
+            showSettingsResult('error', '❌ ' + finalResult.error);
+          }
+        } else {
+          // 用户取消
+          btn.textContent = '⏳ 正在清理...';
+          await window.electronAPI.dsStore.cancel(currentMountPoint);
+          showSettingsResult('success', '已取消操作');
+        }
+        
+        currentMountPoint = null;
+        btn.disabled = false;
+        btn.textContent = '🛠️ 制作.DS_Store模板';
+        
+      } catch (error) {
+        showSettingsResult('error', '❌ 操作失败: ' + error.message);
+        
+        // 清理
+        if (currentMountPoint) {
+          await window.electronAPI.dsStore.cancel(currentMountPoint);
+        }
+        
+        const btn = document.getElementById('btnMakeDsStore');
+        btn.disabled = false;
+        btn.textContent = '🛠️ 制作.DS_Store模板';
+      }
+      });
+    }
+  </script>
+</body>
+</html>
